@@ -1,0 +1,95 @@
+#social-reader {
+	background: #f6f6f6;
+	border: 1px solid #ddd;
+	height: 0;
+	padding: 5px;
+	margin: 5px 0;
+	overflow: hidden;
+}
+
+#social-reader-login-button {
+	position: relative;
+	float: left;
+	visibility: hidden;
+}
+
+#social-reader-fb-thumbnail {
+	float: left;
+	position: relative;
+	left: 0;
+	/*
+	height: 38px;
+	margin: 0;
+	padding: 0;
+	position: relative;
+	float: left;
+	top: -9px;
+	left: 300px;
+	*/
+}
+
+#social-reader-state {
+	line-height: 22px;
+	float: left;
+	position: relative;
+	left: 260px;
+	font-family: georgia, helvetica, sans-serif;
+	font-size: 12px;
+	padding: 0;
+	margin: 0;
+}
+
+#social-reader-status {
+	display: inline-block;
+	padding: 0 10px;
+	margin: 0;
+	height: 10px;
+}
+
+#social-reader-settings {
+	float: right;
+	margin: 3px 0 0 0;
+	cursor: pointer;
+}
+
+#social-reader-settings-options {
+	/* background: #ccc; */
+	float: left;
+	position: relative;
+	top: 10px;
+	width: 100%;
+	height: 40px;
+}
+
+#social-reader-share-on {
+	border: 1px solid #ddd;
+	background: #eee;
+	float: left;
+	width: 48%;
+	height: 36px;
+	height: 36px;
+	margin: 2px;
+}
+
+#social-reader-share-off {
+	border: 1px solid #ddd;
+	background: #f78181;
+	float: right;
+	width: 48%;
+	height: 36px;
+	margin: 2px;
+}
+
+#social-reader-settings-options span {
+	line-height: 36px;
+	text-align: center;
+	font-family: georgia, helvetica, sans-serif;
+	font-size: 14px;
+	font-weight: bold;
+}
+
+#social-reader-share-on:hover,
+#social-reader-share-off:hover {
+	/*background: #bbb;*/
+	cursor: pointer;
+}
