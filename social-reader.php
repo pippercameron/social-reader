@@ -139,4 +139,5 @@ if( ! class_exists( 'FB_Social_Reader' ) ) :
 	new FB_Social_Reader;
 
 endif;
+
 ?>
