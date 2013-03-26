@@ -1,32 +1,6 @@
 // Social Reader JavaScript Functions
 
 /*
-var social_reader_data = { 
-	app_id: '339417826166617',
-	app_delay: 10 * 1000,
-	article: 'http://easyhealthoptions.cloudapp.net/personalliberty/?p=113509',
-	fb_user_id: null,
-	status: {
-		on: 'http://plimages.blob.core.windows.net/images/social-reader/on.png',
-		off: 'http://plimages.blob.core.windows.net/images/social-reader/off.png',
-		on_text: 'Shared with Facebook friends.',
-		off_text: 'Not shared with Facebook friends.'
-	}
-};
-*/
-
-
-/*
- * Set options for the two states the social reader can have.
- */
-social_reader_data.status = {
-	on: 'http://plimages.blob.core.windows.net/images/social-reader/on.png',
-	off: 'http://plimages.blob.core.windows.net/images/social-reader/off.png',
-	on_text: 'Shared with Facebook friends.',
-	off_text: 'Not shared with Facebook friends.'
-}
-
-/*
  * Load Facebook's JavaScript SDK.
  */
 ( function() {
@@ -40,7 +14,7 @@ social_reader_data.status = {
 	js.async = true;
 	js.src = "//connect.facebook.net/en_US/all.js";
 	document.getElementsByTagName( 'head' )[ 0 ].appendChild( js );
-} () );
+}) ();
 
 
 /*
@@ -48,8 +22,18 @@ social_reader_data.status = {
  * login status, and set up a listener for the subscribe event.
  */
 jQuery( document ).ready( function() {
+	social_reader_data = JSON.parse( social_reader_data );
+
+	// Set options for the two states the social reader can have.
+	social_reader_data.status = {
+		on: 'http://plimages.blob.core.windows.net/images/social-reader/on.png',
+		off: 'http://plimages.blob.core.windows.net/images/social-reader/off.png',
+		on_text: 'Shared with Facebook friends.',
+		off_text: 'Not shared with Facebook friends.'
+	};
+
 	FB.init({
-		appId: social_reader_data.app_id,
+		appId: social_reader_data.fb_app_id,
 		status: true,
 		cookie: true,
 		xfbml: true

@@ -20,11 +20,9 @@ if( ! class_exists( 'FB_Social_Reader' ) ) :
 								'fb_app_id' => 0,
 								'fb_app_namespace' => '',
 								'fb_app_object' => '',
-								'fb_app_delay' => 0 );
-
+								'fb_app_delay' => 0,
+								'override_jetpack_open_graph' => true );
 		function __construct() {
-			add_action( 'wp_head', array( $this, 'add_meta_tags' ) );
-
 			/*
 		   	 * Add our admin menu.
 			 */
@@ -32,31 +30,46 @@ if( ! class_exists( 'FB_Social_Reader' ) ) :
 
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
-			//add_action( 'the_content', array( $this, 'display_social_reader' ) );
+			add_action( 'wp_head', array( $this, 'add_meta_tags' ) );
+	
+			add_action( 'jetpack_open_graph_tags', array( $this, 'modify_jetpack_open_graph_tags' ) );
 
-			$this->get_saved_settings();
+			$this->settings = get_option( $this->plugin_page_name . '-settings' );
+
+			$this->setup_open_graph_tags();
 		}
 
 		function enqueue_scripts() {
+			if( ! is_single() )
+				return;
+
 			wp_enqueue_script( 'jquery' );
 			wp_enqueue_script( 'social-reader-javascript', plugins_url( '/js/social-reader.js', __FILE__ ) );
+
+			wp_localize_script( 'social-reader-javascript', 'social_reader_data', json_encode( $this->settings ) );
+
 			wp_enqueue_style( 'social-reader-css', plugins_url( '/css/style.css', __FILE__ ) );
 		}
 
 		function add_meta_tags() {
-			if( ! is_single() )
+			if( ! is_single() || has_filter( 'jetpack_enable_open_graph' ) )
 				return; ?>
 
 			<meta property="fb:app_id" content="<?php echo esc_attr( $this->settings[ 'fb_app_id' ] ); ?>" />
 			<meta property="og:type" content="<?php echo esc_attr( $this->settings[ 'fb_app_namespace' ] ); ?>:article" />
 			<meta property="og:title" content="<?php the_title(); ?>" />
-			<meta property="og:image" content="<?php echo pl_get_image_url( get_the_ID() ); ?>" />
 			<meta property="og:description" content="<?php the_excerpt(); ?>" />
 			<meta property="og:url" content="<?php the_permalink(); ?>"><?php
 		}
 
-		function get_saved_settings() {
-			$this->settings = get_option( $this->plugin_page_name . '-settings' );
+		function modify_jetpack_open_graph_tags( $tags ) {
+			if( is_single() ) {
+				$tags[ 'fb:app_id' ] = $this->settings[ 'fb_app_id' ];
+				$tags[ 'og:type' ] = $this->settings[ 'fb_app_namespace' ];
+			}
+
+			return $tags;
+	
 		}
 
 		function create_settings_menu() {
@@ -71,8 +84,6 @@ if( ! class_exists( 'FB_Social_Reader' ) ) :
 		}
 
 		function process_form_input() {
-		
-			// Make sure there's no monkey-business going on.
 			check_admin_referer( $this->plugin_page_name );
 
 			$this->settings[ 'fb_app_id' ] = isset( $_POST[ 'fb_app_id' ] ) ? absint( $_POST[ 'fb_app_id' ] ) : 0;
@@ -127,10 +138,16 @@ if( ! class_exists( 'FB_Social_Reader' ) ) :
 			</div><?php
 		}
 	
-		function display_social_reader( $content ) {
-			$content = '<div id="social-reader">social reader</div>' . $content;			
-
-			return $content;
+		function display_social_reader() { ?>			
+			<div id="social-reader" style="display: none;">
+				<span id="social-reader-login-button"><fb:login-button show-faces="false" width="200" max-rows="1" scope="publish_actions" ></fb:login-button></span>
+				<span id="social-reader-state"><img id="social-reader-status" src="http://plimages.blob.core.windows.net/images/social-reader/off.png" alt="" /><span>Not shared with Facebook friends</span></span>
+				<img id="social-reader-settings" src="http://plimages.blob.core.windows.net/images/social-reader/settings.png" alt="" />
+				<div id="social-reader-settings-options">
+					<div id="social-reader-share-on" class="social-reader-option"><span><p>Automatically share with friends.</p></span></div>
+					<div id="social-reader-share-off" class="social-reader-option"><span><p>Don't share with friends.</p></span></div>
+				</div>
+			</div><?php
 		}
 
 	}
