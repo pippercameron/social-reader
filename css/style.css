@@ -17,15 +17,6 @@
 	float: left;
 	position: relative;
 	left: 0;
-	/*
-	height: 38px;
-	margin: 0;
-	padding: 0;
-	position: relative;
-	float: left;
-	top: -9px;
-	left: 300px;
-	*/
 }
 
 #social-reader-state {
@@ -53,7 +44,6 @@
 }
 
 #social-reader-settings-options {
-	/* background: #ccc; */
 	float: left;
 	position: relative;
 	top: 10px;

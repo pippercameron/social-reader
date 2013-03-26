@@ -113,7 +113,7 @@ function display_social_reader() {
 }
 
 jQuery( document ).ready( function() {
-	setTimeout( 'display_social_reader()', 1000 );
+	setTimeout( 'display_social_reader()', social_reader_data.fb_app_delay );
 	
 	jQuery( '#social-reader-settings' ).toggle( function() {
 		if( null == social_reader_data.fb_user_id )
