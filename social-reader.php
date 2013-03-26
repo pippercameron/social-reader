@@ -35,8 +35,6 @@ if( ! class_exists( 'FB_Social_Reader' ) ) :
 			add_action( 'jetpack_open_graph_tags', array( $this, 'modify_jetpack_open_graph_tags' ) );
 
 			$this->settings = get_option( $this->plugin_page_name . '-settings' );
-
-			$this->setup_open_graph_tags();
 		}
 
 		function enqueue_scripts() {
