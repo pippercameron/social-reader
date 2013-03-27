@@ -22,6 +22,8 @@ if( ! class_exists( 'FB_Social_Reader' ) ) :
 								'fb_app_delay' => 0 );
 
 		function __construct() {
+			add_action( 'admin_init', array( $this, 'settings_api_init' ) );
+
 			add_action( 'admin_menu' , array( $this, 'create_settings_menu' ) );
 
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
@@ -31,6 +33,29 @@ if( ! class_exists( 'FB_Social_Reader' ) ) :
 			add_action( 'jetpack_open_graph_tags', array( $this, 'modify_jetpack_open_graph_tags' ) );
 
 			$this->settings = get_option( $this->plugin_page_name . '-settings' );
+		}
+
+		function settings_api_ini() {
+			add_settings_section(
+				'social-reader-settings-section',
+				'Settings name',
+				'social_reader_settings_section_output',
+				$this->plugin_page_name 
+			);
+
+			add_settings_field(
+				'fb_app_id',
+				'Facebook App ID',
+				'fb_app_id_setting',
+				$this->plugin_page_name,
+				'social-reader-settings-section'
+			);
+
+			register_setting( $this->plugin_page_name, 'fb_app_id' );
+		}
+
+		function social_reader_settings_section_output() { ?>
+			<p>Intro to something, something, etc..</p><?php
 		}
 
 		function enqueue_scripts() {
