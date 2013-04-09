@@ -19,11 +19,6 @@ if( ! class_exists( 'FB_Social_Reader' ) ) :
 		
 		var $plugin_page_name = 'fb-social-reader';
 
-		var $bk_settings = array(
-								'fb_app_id' => 0,
-								'fb_app_namespace' => '',
-								'fb_app_delay' => 0 );
-
 		var $settings = array(
 			array(
 				'id' => 'fb_app_id',
@@ -59,7 +54,7 @@ if( ! class_exists( 'FB_Social_Reader' ) ) :
 				'social-reader-settings-section',
 				'Facebook Social Sharing',
 				array( $this, 'settings_section_callback' ),
-				$this->plugin_page_name//$this->plugin_page_name 
+				$this->plugin_page_name
 			);
 
 			foreach( $this->settings as $setting ) {
@@ -71,12 +66,6 @@ if( ! class_exists( 'FB_Social_Reader' ) ) :
 					'social-reader-settings-section',
 					$setting
 				);
-				/*
-				if( 'fb_app_namespace' === $setting[ 'id' ] )
-					register_setting( $this->plugin_page_name, $setting[ 'id' ], array( $this, 'validate_setting_input_text' ) );
-				else
-					register_setting( $this->plugin_page_name, $setting[ 'id' ], array( $this, 'validate_setting_input_int' ) );
-				*/
 			}
 
 			register_setting( $this->plugin_page_name, $this->plugin_page_name, array( $this, 'validate_setting_input' ) );
@@ -87,9 +76,12 @@ if( ! class_exists( 'FB_Social_Reader' ) ) :
 		}
 
 		function validate_setting_input( $input ) {
-			if( isset( $input[ 'fb_app_delay' ] ) ) {
-			}
-			sanitize_text_field( $input[ 'fb_app_id' ] );
+			if( isset( $input[ 'fb_app_id'] ) )
+				absint( $input[ 'fb_app_id' ] );
+			elseif( isset( $input[ 'fb_app_delay' ] ) )
+				absint( $input[ 'fb_app_delay' ] );
+			elseif( isset( $input[ 'fb_app_namespace' ] ) )
+				sanitize_text_field( $input[ 'fb_app_namespace' ] );
 
 			return $input;
 		}
