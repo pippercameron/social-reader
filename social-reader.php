@@ -10,52 +10,117 @@
  * License: GPL2
  */
 
+// https://src.personalliberty.com/FacebookSocialReaderPostsPut.ashx?FacebookID=11&PostID=13
+// https://src.personalliberty.com/FacebookSocialReaderPostsGet.ashx?FacebookID=11&PostID=13
+
 if( ! class_exists( 'FB_Social_Reader' ) ) :
 
 	class FB_Social_Reader {
 		
 		var $plugin_page_name = 'fb-social-reader';
 
-		var $settings = array(
+		var $bk_settings = array(
 								'fb_app_id' => 0,
 								'fb_app_namespace' => '',
 								'fb_app_delay' => 0 );
 
-		function __construct() {
-			add_action( 'admin_init', array( $this, 'settings_api_init' ) );
+		var $settings = array(
+			array(
+				'id' => 'fb_app_id',
+				'title' => 'Facebook App ID'
+			),
+			
+			array(
+				'id' => 'fb_app_namespace',
+				'title' => 'Facebook App Namespace'
+			),
 
+			array(
+				'id' => 'fb_app_delay',
+				'title' => 'Facebook App Delay'
+			)
+		
+		);
+
+		function __construct() {
 			add_action( 'admin_menu' , array( $this, 'create_settings_menu' ) );
+
+			add_action( 'admin_init', array( $this, 'settings_api_init' ) );
 
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
 			add_action( 'wp_head', array( $this, 'add_meta_tags' ) );
 	
 			add_action( 'jetpack_open_graph_tags', array( $this, 'modify_jetpack_open_graph_tags' ) );
-
-			$this->settings = get_option( $this->plugin_page_name . '-settings' );
 		}
 
-		function settings_api_ini() {
+		function settings_api_init() {
 			add_settings_section(
 				'social-reader-settings-section',
-				'Settings name',
-				'social_reader_settings_section_output',
-				$this->plugin_page_name 
+				'Facebook Social Sharing',
+				array( $this, 'settings_section_callback' ),
+				$this->plugin_page_name//$this->plugin_page_name 
 			);
 
-			add_settings_field(
-				'fb_app_id',
-				'Facebook App ID',
-				'fb_app_id_setting',
-				$this->plugin_page_name,
-				'social-reader-settings-section'
-			);
+			foreach( $this->settings as $setting ) {
+				add_settings_field(
+					$setting[ 'id' ],//'fb_app_id',
+					$setting[ 'title' ],//'Facebook App ID',
+					array( $this, 'settings_field_callback' ),
+					$this->plugin_page_name,
+					'social-reader-settings-section',
+					$setting
+				);
+				/*
+				if( 'fb_app_namespace' === $setting[ 'id' ] )
+					register_setting( $this->plugin_page_name, $setting[ 'id' ], array( $this, 'validate_setting_input_text' ) );
+				else
+					register_setting( $this->plugin_page_name, $setting[ 'id' ], array( $this, 'validate_setting_input_int' ) );
+				*/
+			}
 
-			register_setting( $this->plugin_page_name, 'fb_app_id' );
+			register_setting( $this->plugin_page_name, $this->plugin_page_name, array( $this, 'validate_setting_input' ) );
 		}
 
-		function social_reader_settings_section_output() { ?>
-			<p>Intro to something, something, etc..</p><?php
+		function settings_section_callback() {
+
+		}
+
+		function validate_setting_input( $input ) {
+			if( isset( $input[ 'fb_app_delay' ] ) ) {
+			}
+			sanitize_text_field( $input[ 'fb_app_id' ] );
+
+			return $input;
+		}
+
+		function settings_field_callback( $setting ) {
+			$settings = get_option( $this->plugin_page_name );
+
+			if( 'fb_app_id'=== $setting[ 'id' ] ) : ?>
+				<input 
+					type="text"
+					style="width: 200px; display: block; margin: 0 0 20px 0;"
+					name="<?php echo $this->plugin_page_name; ?>[fb_app_id]" 
+					value="<?php echo esc_attr( $settings[ 'fb_app_id' ] ); ?>" /><?php
+
+			elseif( 'fb_app_namespace' === $setting[ 'id' ] ) : ?>
+				<input 
+					type="text"
+					style="width: 200px; display: block; margin: 0 0 20px 0;"
+					name="<?php echo $this->plugin_page_name; ?>[fb_app_namespace]" 
+					value="<?php echo esc_attr( $settings[ 'fb_app_namespace' ] ); ?>" /><?php
+
+			elseif( 'fb_app_delay' === $setting[ 'id' ] ) : ?>		
+				<input 
+					type="text"
+					style="width: 200px; display: block; margin: 0 0 20px 0;"
+					name="<?php echo $this->plugin_page_name; ?>[fb_app_delay]" 
+					value="<?php echo esc_attr( $settings[ 'fb_app_delay' ] ); ?>" /><?php
+
+			elseif( 'fb_settings_submit' === $settings[ 'id' ] ) : ?>
+				<input style="display: block; margin: 20px 0;" type="submit" value="Update Settings" /><?php
+			endif;
 		}
 
 		function enqueue_scripts() {
@@ -96,53 +161,12 @@ if( ! class_exists( 'FB_Social_Reader' ) ) :
 			add_options_page( 'Social Reader Settings', 'Social Reader', 'manage_options', $this->plugin_page_name, array( $this, 'create_settings_page' ) );
 		}
 
-		function create_settings_page() {
-			if(  ! empty( $_POST ) )
-				$this->process_form_input();
-
-			$this->generate_settings_form();
-		}
-
-		function process_form_input() {
-			check_admin_referer( $this->plugin_page_name );
-
-			$this->settings[ 'fb_app_id' ] = isset( $_POST[ 'fb_app_id' ] ) ? absint( $_POST[ 'fb_app_id' ] ) : 0;
-			$this->settings[ 'fb_app_namespace' ] = isset( $_POST[ 'fb_app_namespace' ] ) ? sanitize_text_field( $_POST[ 'fb_app_namespace' ] ) : '';
-			$this->settings[ 'fb_app_delay' ] = isset( $_POST[ 'fb_app_delay' ] ) ? absint( $_POST[ 'fb_app_delay' ] ) : 0;
-
-			update_option( $this->plugin_page_name . '-settings', $this->settings );
-		}
-
-		function generate_settings_form() { ?>
+		function create_settings_page() { ?>
 			<div>
-				<p>Social Reader Settings</p>
-				<form method="post" action="<?php menu_page_url( $this->plugin_page_name ); ?>" >
-
-					<span style="font-size: 14px;">Facebook App ID:</span>
-					<input 
-						type="text"
-						style="width: 200px; display: block; margin: 0 0 20px 0;"
-						name="fb_app_id" 
-						value="<?php echo esc_attr( $this->settings[ 'fb_app_id' ] ); ?>" />
-
-					<span style="font-size: 14px;">App Namespace:</span>
-					<input 
-						type="text"
-						style="width: 200px; display: block; margin: 0 0 20px 0;"
-						name="fb_app_namespace" 
-						value="<?php echo esc_attr( $this->settings[ 'fb_app_namespace' ] ); ?>" />
-
-					<span style="font-size: 14px;">Time to wait before the post is considered read:</span>
-					<input 
-						type="text"
-						style="width: 200px; display: block; margin: 0 0 20px 0;"
-						name="fb_app_delay" 
-						value="<?php echo esc_attr( $this->settings[ 'fb_app_delay' ] ); ?>" />
-
-					<input style="display: block; margin: 20px 0;" type="submit" value="Update Settings" />
-
-					<?php wp_nonce_field( $this->plugin_page_name ); ?>
-
+				<form method="post" action="options.php" >
+					<?php settings_fields( $this->plugin_page_name ); ?>
+					<?php do_settings_sections( $this->plugin_page_name ); ?>
+					<input name="submit" type="submit" value="Save Settings" />
 				</form>
 			</div><?php
 		}
